@@ -1,0 +1,53 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model ClickEvent {
+  id            String       @id @default(cuid())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  clickTime     DateTime?
+  gameSession   GameSession? @relation(fields: [gameSessionId], references: [id])
+  gameSessionId String?
+}
+
+model GameSession {
+  id          String       @id @default(cuid())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  score       Int?
+  startTime   DateTime?
+  endTime     DateTime?
+  user        User?        @relation(fields: [userId], references: [id])
+  userId      String?
+  clickEvents ClickEvent[]
+}
+
+model Leaderboard {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  score     Int?
+  rank      Int?
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model User {
+  id           String        @id @default(cuid())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  firstName    String?
+  lastName     String?
+  username     String        @unique
+  email        String?       @unique
+  password     String
+  roles        Json
+  gameSessions GameSession[]
+  leaderboards Leaderboard[]
+}
